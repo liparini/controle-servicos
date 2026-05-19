@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Prestação de Serviços</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --color-background-primary:#ffffff;
+  --color-background-secondary:#f5f5f3;
+  --color-background-tertiary:#eeede8;
+  --color-text-primary:#1a1a18;
+  --color-text-secondary:#6b6b67;
+  --color-border-tertiary:rgba(0,0,0,0.12);
+  --color-border-secondary:rgba(0,0,0,0.22);
+  --border-radius-md:8px;
+  --border-radius-lg:12px;
+  --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --color-background-primary:#1e1e1c;
+    --color-background-secondary:#2a2a28;
+    --color-background-tertiary:#313130;
+    --color-text-primary:#f0efe9;
+    --color-text-secondary:#9a9a94;
+    --color-border-tertiary:rgba(255,255,255,0.10);
+    --color-border-secondary:rgba(255,255,255,0.18);
+  }
+}
+body{font-family:var(--font-sans);background:var(--color-background-tertiary);color:var(--color-text-primary);min-height:100vh;padding:2rem 1rem}
+.container{max-width:900px;margin:0 auto}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:0.5px solid var(--color-border-tertiary);flex-wrap:wrap;gap:12px}
+.header-left h1{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+.header-left p{font-size:13px;color:var(--color-text-secondary);margin-top:2px}
+.tabs{display:flex;gap:4px;background:var(--color-background-secondary);padding:4px;border-radius:var(--border-radius-md)}
+.tab{padding:6px 16px;font-size:13px;border:none;background:none;cursor:pointer;border-radius:6px;color:var(--color-text-secondary);font-family:var(--font-sans)}
+.tab.active{background:var(--color-background-primary);color:var(--color-text-primary);font-weight:500;border:0.5px solid var(--color-border-tertiary)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem}
+.metric-label{font-size:12px;color:var(--color-text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em}
+.metric-value{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.metric-value.danger{color:#A32D2D}
+.metric-value.success{color:#0F6E56}
+.metric-value.warning{color:#854F0B}
+.section{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1rem}
+.section-title{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:1rem}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid.cols3{grid-template-columns:1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;color:var(--color-text-secondary)}
+.field input,.field select,.field textarea{font-family:var(--font-sans);font-size:14px;width:100%;padding:8px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--color-text-secondary);box-shadow:0 0 0 2px rgba(0,0,0,0.06)}
+.field textarea{resize:vertical;min-height:60px}
+.btn-row{display:flex;justify-content:flex-end;gap:8px;margin-top:1rem}
+.btn-primary{background:var(--color-text-primary);color:var(--color-background-primary);border:none;padding:8px 20px;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans)}
+.btn-primary:hover{opacity:0.85}
+.btn-secondary{background:none;border:0.5px solid var(--color-border-secondary);padding:8px 16px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;font-family:var(--font-sans);color:var(--color-text-primary)}
+.btn-secondary:hover{background:var(--color-background-secondary)}
+.btn-danger{background:none;border:0.5px solid #F09595;color:#A32D2D;padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:var(--font-sans)}
+.btn-success{background:none;border:0.5px solid #97C459;color:#3B6D11;padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:var(--font-sans)}
+.filters{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.filters select,.filters input{font-family:var(--font-sans);font-size:13px;padding:6px 10px;height:34px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);outline:none}
+.filters label{font-size:12px;color:var(--color-text-secondary);white-space:nowrap;align-self:center}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 12px;font-weight:500;font-size:12px;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary);white-space:nowrap}
+td{padding:10px 12px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--color-background-secondary)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.badge-pending{background:#FAEEDA;color:#633806}
+.badge-paid{background:#EAF3DE;color:#27500A}
+.badge-overdue{background:#FCEBEB;color:#791F1F}
+.badge-partial{background:#E6F1FB;color:#0C447C}
+.empty{text-align:center;padding:2rem;color:var(--color-text-secondary);font-size:13px}
+.view-section{display:none}
+.view-section.active{display:block}
+.report-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1.5rem}
+.report-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:0.5px solid var(--color-border-tertiary);flex-wrap:wrap;gap:12px}
+.report-title{font-size:16px;font-weight:500}
+.report-sub{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.report-table{background:var(--color-background-primary);border-radius:var(--border-radius-md);overflow:hidden}
+.total-row td{font-weight:500;background:var(--color-background-secondary)}
+.toast{position:fixed;bottom:20px;right:20px;background:#2C2C2A;color:#F1EFE8;padding:10px 18px;border-radius:var(--border-radius-md);font-size:13px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:999}
+.toast.show{opacity:1}
+@media(max-width:600px){.metrics{grid-template-columns:1fr 1fr}.form-grid,.form-grid.cols3{grid-template-columns:1fr}}
+@media print{.tabs,.btn-row,.filters,.btn-primary,.btn-secondary,.btn-danger,.btn-success,.toast{display:none!important}.view-section{display:block!important}.section{border:none;padding:0}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-left">
+      <h1><i class="ti ti-file-invoice" aria-hidden="true"></i> Controle de Prestação de Serviços</h1>
+      <p>Gestão de pagamentos e fornecedores</p>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="showView('lancamentos')">Lançamentos</button>
+      <button class="tab" onclick="showView('lista')">Registros</button>
+      <button class="tab" onclick="showView('relatorio')">Relatório</button>
+    </div>
+  </div>
+
+  <div class="metrics" id="metrics"></div>
+
+  <div id="view-lancamentos" class="view-section active">
+    <div class="section">
+      <div class="section-title"><i class="ti ti-plus" aria-hidden="true"></i> Novo Lançamento</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Fornecedor / Prestador *</label>
+          <input type="text" id="f-fornecedor" placeholder="Nome do fornecedor">
+        </div>
+        <div class="field">
+          <label>Serviço *</label>
+          <input type="text" id="f-servico" placeholder="Descrição do serviço">
+        </div>
+      </div>
+      <div class="form-grid cols3" style="margin-top:12px">
+        <div class="field">
+          <label>Valor (R$) *</label>
+          <input type="number" id="f-valor" placeholder="0,00" min="0" step="0.01">
+        </div>
+        <div class="field">
+          <label>Data de emissão *</label>
+          <input type="date" id="f-emissao">
+        </div>
+        <div class="field">
+          <label>Data de vencimento *</label>
+          <input type="date" id="f-vencimento">
+        </div>
+      </div>
+      <div class="form-grid cols3" style="margin-top:12px">
+        <div class="field">
+          <label>Período de referência</label>
+          <input type="month" id="f-periodo">
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="f-status">
+            <option value="pendente">Pendente</option>
+            <option value="pago">Pago</option>
+            <option value="vencido">Vencido</option>
+            <option value="parcial">Pago parcialmente</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Valor pago (R$)</label>
+          <input type="number" id="f-valorpago" placeholder="0,00" min="0" step="0.01">
+        </div>
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label>Observações</label>
+        <textarea id="f-obs" placeholder="Anotações adicionais..."></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn-secondary" onclick="clearForm()">Limpar</button>
+        <button class="btn-primary" onclick="salvarLancamento()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar lançamento</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-lista" class="view-section">
+    <div class="section">
+      <div class="section-title"><i class="ti ti-list" aria-hidden="true"></i> Registros</div>
+      <div class="filters">
+        <label>Filtrar:</label>
+        <input type="text" id="fil-fornecedor" placeholder="Fornecedor..." oninput="renderTabela()" style="width:160px">
+        <select id="fil-status" onchange="renderTabela()">
+          <option value="">Todos os status</option>
+          <option value="pendente">Pendente</option>
+          <option value="pago">Pago</option>
+          <option value="vencido">Vencido</option>
+          <option value="parcial">Parcial</option>
+        </select>
+        <input type="month" id="fil-periodo" onchange="renderTabela()" style="width:150px">
+        <button class="btn-secondary" onclick="limparFiltros()" style="padding:5px 12px;font-size:12px">Limpar filtros</button>
+      </div>
+      <div id="tabela-container">
+        <div class="empty">Nenhum registro encontrado.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-relatorio" class="view-section">
+    <div class="section">
+      <div class="section-title"><i class="ti ti-chart-bar" aria-hidden="true"></i> Gerar Relatório</div>
+      <div class="form-grid cols3">
+        <div class="field">
+          <label>Fornecedor</label>
+          <select id="rel-fornecedor"><option value="">Todos</option></select>
+        </div>
+        <div class="field">
+          <label>Período inicial</label>
+          <input type="month" id="rel-inicio">
+        </div>
+        <div class="field">
+          <label>Período final</label>
+          <input type="month" id="rel-fim">
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:12px">
+        <div class="field">
+          <label>Status</label>
+          <select id="rel-status">
+            <option value="">Todos</option>
+            <option value="pendente">Pendente</option>
+            <option value="vencido">Vencido</option>
+            <option value="parcial">Parcial</option>
+            <option value="pago">Pago</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="gerarRelatorio()"><i class="ti ti-report" aria-hidden="true"></i> Gerar relatório</button>
+      </div>
+    </div>
+    <div id="relatorio-resultado" style="display:none"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let dados = JSON.parse(localStorage.getItem('ps_dados')||'[]');
+
+function salvar(){localStorage.setItem('ps_dados',JSON.stringify(dados))}
+function fmt(v){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v||0)}
+function fmtData(d){if(!d)return'—';const[y,m,di]=d.split('-');return`${di}/${m}/${y}`}
+function fmtPeriodo(p){if(!p)return'—';const[y,m]=p.split('-');const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];return`${meses[parseInt(m)-1]}/${y}`}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show';setTimeout(()=>t.className='toast',2500)}
+
+function showView(v){
+  document.querySelectorAll('.view-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  const tabs={lancamentos:0,lista:1,relatorio:2};
+  document.querySelectorAll('.tab')[tabs[v]].classList.add('active');
+  if(v==='lista')renderTabela();
+  if(v==='relatorio')atualizarSelectFornecedor();
+  renderMetrics();
+}
+
+function salvarLancamento(){
+  const forn=document.getElementById('f-fornecedor').value.trim();
+  const serv=document.getElementById('f-servico').value.trim();
+  const val=parseFloat(document.getElementById('f-valor').value);
+  const emis=document.getElementById('f-emissao').value;
+  const venc=document.getElementById('f-vencimento').value;
+  if(!forn||!serv||!val||!emis||!venc){toast('Preencha os campos obrigatórios');return}
+  dados.push({
+    id:Date.now(),fornecedor:forn,servico:serv,valor:val,
+    emissao:emis,vencimento:venc,
+    periodo:document.getElementById('f-periodo').value,
+    status:document.getElementById('f-status').value,
+    valorPago:parseFloat(document.getElementById('f-valorpago').value)||0,
+    obs:document.getElementById('f-obs').value.trim()
+  });
+  salvar();clearForm();renderMetrics();toast('Lançamento salvo com sucesso!');
+}
+
+function clearForm(){
+  ['f-fornecedor','f-servico','f-valor','f-emissao','f-vencimento','f-periodo','f-valorpago','f-obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+  document.getElementById('f-status').value='pendente';
+  document.getElementById('f-emissao').value=new Date().toISOString().split('T')[0];
+}
+
+function excluir(id){
+  if(!confirm('Excluir este registro?'))return;
+  dados=dados.filter(d=>d.id!==id);salvar();renderTabela();renderMetrics();toast('Registro excluído');
+}
+
+function marcarPago(id){
+  const d=dados.find(x=>x.id===id);if(!d)return;
+  d.status='pago';d.valorPago=d.valor;salvar();renderTabela();renderMetrics();toast('Marcado como pago!');
+}
+
+function renderTabela(){
+  const filF=(document.getElementById('fil-fornecedor').value||'').toLowerCase();
+  const filS=document.getElementById('fil-status').value;
+  const filP=document.getElementById('fil-periodo').value;
+  let list=dados.filter(d=>{
+    if(filF&&!d.fornecedor.toLowerCase().includes(filF))return false;
+    if(filS&&d.status!==filS)return false;
+    if(filP&&d.periodo!==filP)return false;
+    return true;
+  }).sort((a,b)=>b.vencimento.localeCompare(a.vencimento));
+  const cont=document.getElementById('tabela-container');
+  if(!list.length){cont.innerHTML='<div class="empty">Nenhum registro encontrado.</div>';return}
+  const badge={pendente:'badge-pending',pago:'badge-paid',vencido:'badge-overdue',parcial:'badge-partial'};
+  const labels={pendente:'Pendente',pago:'Pago',vencido:'Vencido',parcial:'Parcial'};
+  cont.innerHTML=`<div style="overflow-x:auto"><table>
+    <thead><tr><th>Fornecedor</th><th>Serviço</th><th>Período</th><th>Vencimento</th><th>Valor</th><th>Pago</th><th>Saldo</th><th>Status</th><th>Ações</th></tr></thead>
+    <tbody>${list.map(d=>{
+      const saldo=d.valor-(d.valorPago||0);
+      return`<tr>
+        <td style="font-weight:500">${d.fornecedor}</td><td>${d.servico}</td>
+        <td>${fmtPeriodo(d.periodo)}</td><td>${fmtData(d.vencimento)}</td>
+        <td style="font-weight:500">${fmt(d.valor)}</td>
+        <td style="color:#3B6D11">${fmt(d.valorPago)}</td>
+        <td style="color:${saldo>0?'#A32D2D':'#3B6D11'};font-weight:500">${fmt(saldo)}</td>
+        <td><span class="badge ${badge[d.status]||'badge-pending'}">${labels[d.status]||d.status}</span></td>
+        <td style="white-space:nowrap">
+          ${d.status!=='pago'?`<button class="btn-success" onclick="marcarPago(${d.id})" title="Marcar como pago"><i class="ti ti-check"></i></button> `:''}
+          <button class="btn-danger" onclick="excluir(${d.id})" title="Excluir"><i class="ti ti-trash"></i></button>
+        </td></tr>`
+    }).join('')}</tbody></table></div>`;
+}
+
+function limparFiltros(){
+  document.getElementById('fil-fornecedor').value='';
+  document.getElementById('fil-status').value='';
+  document.getElementById('fil-periodo').value='';
+  renderTabela();
+}
+
+function renderMetrics(){
+  const total=dados.reduce((s,d)=>s+d.valor,0);
+  const pago=dados.reduce((s,d)=>s+(d.valorPago||0),0);
+  const aberto=total-pago;
+  const vencidos=dados.filter(d=>d.status==='vencido').reduce((s,d)=>s+(d.valor-(d.valorPago||0)),0);
+  document.getElementById('metrics').innerHTML=`
+    <div class="metric"><div class="metric-label">Total lançado</div><div class="metric-value">${fmt(total)}</div></div>
+    <div class="metric"><div class="metric-label">Total pago</div><div class="metric-value success">${fmt(pago)}</div></div>
+    <div class="metric"><div class="metric-label">Em aberto</div><div class="metric-value warning">${fmt(aberto)}</div></div>
+    <div class="metric"><div class="metric-label">Vencidos</div><div class="metric-value danger">${fmt(vencidos)}</div></div>`;
+}
+
+function atualizarSelectFornecedor(){
+  const sel=document.getElementById('rel-fornecedor');
+  const atual=sel.value;
+  const forn=[...new Set(dados.map(d=>d.fornecedor))].sort();
+  sel.innerHTML='<option value="">Todos</option>'+forn.map(f=>`<option value="${f}"${f===atual?' selected':''}>${f}</option>`).join('');
+}
+
+function gerarRelatorio(){
+  const filF=document.getElementById('rel-fornecedor').value;
+  const filS=document.getElementById('rel-status').value;
+  const ini=document.getElementById('rel-inicio').value;
+  const fim=document.getElementById('rel-fim').value;
+  let list=dados.filter(d=>{
+    if(filF&&d.fornecedor!==filF)return false;
+    if(filS&&d.status!==filS)return false;
+    if(ini&&d.periodo&&d.periodo<ini)return false;
+    if(fim&&d.periodo&&d.periodo>fim)return false;
+    return true;
+  }).sort((a,b)=>a.fornecedor.localeCompare(b.fornecedor)||a.vencimento.localeCompare(b.vencimento));
+  const cont=document.getElementById('relatorio-resultado');
+  if(!list.length){cont.style.display='block';cont.innerHTML='<div class="section"><div class="empty">Nenhum registro para os filtros selecionados.</div></div>';return}
+  const totVal=list.reduce((s,d)=>s+d.valor,0);
+  const totPago=list.reduce((s,d)=>s+(d.valorPago||0),0);
+  const totSaldo=totVal-totPago;
+  const agora=new Date().toLocaleDateString('pt-BR');
+  const badge={pendente:'badge-pending',pago:'badge-paid',vencido:'badge-overdue',parcial:'badge-partial'};
+  const labels={pendente:'Pendente',pago:'Pago',vencido:'Vencido',parcial:'Parcial'};
+  const descF=filF||'Todos os fornecedores';
+  const descS=filS?{pendente:'Pendentes',vencido:'Vencidos',parcial:'Parciais',pago:'Pagos'}[filS]:'Todos os status';
+  cont.style.display='block';
+  cont.innerHTML=`<div class="report-box">
+    <div class="report-header">
+      <div><div class="report-title"><i class="ti ti-report"></i> Relatório de Pagamentos</div>
+      <div class="report-sub">Gerado em ${agora} · ${descF} · ${descS}</div></div>
+      <button class="btn-secondary" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.5rem">
+      <div class="metric"><div class="metric-label">Total</div><div class="metric-value">${fmt(totVal)}</div></div>
+      <div class="metric"><div class="metric-label">Pago</div><div class="metric-value success">${fmt(totPago)}</div></div>
+      <div class="metric"><div class="metric-label">Saldo em aberto</div><div class="metric-value ${totSaldo>0?'danger':'success'}">${fmt(totSaldo)}</div></div>
+    </div>
+    <div class="report-table"><table>
+      <thead><tr><th>Fornecedor</th><th>Serviço</th><th>Período</th><th>Vencimento</th><th>Valor</th><th>Pago</th><th>Saldo</th><th>Status</th></tr></thead>
+      <tbody>
+        ${list.map(d=>{const saldo=d.valor-(d.valorPago||0);return`<tr>
+          <td style="font-weight:500">${d.fornecedor}</td><td>${d.servico}</td>
+          <td>${fmtPeriodo(d.periodo)}</td><td>${fmtData(d.vencimento)}</td>
+          <td>${fmt(d.valor)}</td><td style="color:#3B6D11">${fmt(d.valorPago)}</td>
+          <td style="color:${saldo>0?'#A32D2D':'#3B6D11'};font-weight:500">${fmt(saldo)}</td>
+          <td><span class="badge ${badge[d.status]||'badge-pending'}">${labels[d.status]||d.status}</span></td>
+        </tr>`}).join('')}
+        <tr class="total-row">
+          <td colspan="4" style="font-weight:500">Total</td>
+          <td style="font-weight:500">${fmt(totVal)}</td>
+          <td style="font-weight:500;color:#3B6D11">${fmt(totPago)}</td>
+          <td style="font-weight:500;color:${totSaldo>0?'#A32D2D':'#3B6D11'}">${fmt(totSaldo)}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table></div>
+  </div>`;
+}
+
+document.getElementById('f-emissao').value=new Date().toISOString().split('T')[0];
+renderMetrics();
+</script>
+</body>
+</html>
