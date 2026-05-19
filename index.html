@@ -61,6 +61,14 @@ body{font-family:var(--font-sans);background:var(--color-background-tertiary);co
 .btn-secondary:hover{background:var(--color-background-secondary)}
 .btn-danger{background:none;border:0.5px solid #F09595;color:#A32D2D;padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:var(--font-sans)}
 .btn-success{background:none;border:0.5px solid #97C459;color:#3B6D11;padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:var(--font-sans)}
+.btn-edit{background:none;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:var(--font-sans)}
+.btn-edit:hover{background:var(--color-background-secondary)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--color-background-primary);border-radius:var(--border-radius-lg);padding:1.5rem;width:100%;max-width:560px;border:0.5px solid var(--color-border-tertiary);max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.modal-title{font-size:15px;font-weight:500}
+.modal-close{background:none;border:none;cursor:pointer;font-size:18px;color:var(--color-text-secondary);font-family:var(--font-sans);padding:2px 6px}
 .filters{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
 .filters select,.filters input{font-family:var(--font-sans);font-size:13px;padding:6px 10px;height:34px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);outline:none}
 .filters label{font-size:12px;color:var(--color-text-secondary);white-space:nowrap;align-self:center}
@@ -221,6 +229,41 @@ tr:hover td{background:var(--color-background-secondary)}
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title"><i class="ti ti-edit" aria-hidden="true"></i> Editar lancamento</div>
+      <button class="modal-close" onclick="fecharModal()">&#x2715;</button>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Fornecedor / Prestador *</label><input type="text" id="e-fornecedor"></div>
+      <div class="field"><label>Servico *</label><input type="text" id="e-servico"></div>
+    </div>
+    <div class="form-grid cols3" style="margin-top:12px">
+      <div class="field"><label>Valor (R$) *</label><input type="number" id="e-valor" min="0" step="0.01"></div>
+      <div class="field"><label>Data de emissao *</label><input type="date" id="e-emissao"></div>
+      <div class="field"><label>Data de vencimento *</label><input type="date" id="e-vencimento"></div>
+    </div>
+    <div class="form-grid cols3" style="margin-top:12px">
+      <div class="field"><label>Periodo de referencia</label><input type="month" id="e-periodo"></div>
+      <div class="field"><label>Status</label>
+        <select id="e-status">
+          <option value="pendente">Pendente</option>
+          <option value="pago">Pago</option>
+          <option value="vencido">Vencido</option>
+          <option value="parcial">Pago parcialmente</option>
+        </select>
+      </div>
+      <div class="field"><label>Valor pago (R$)</label><input type="number" id="e-valorpago" min="0" step="0.01"></div>
+    </div>
+    <div class="field" style="margin-top:12px"><label>Observacoes</label><textarea id="e-obs"></textarea></div>
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-primary" onclick="salvarEdicao()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar alteracoes</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -304,6 +347,7 @@ function renderTabela(){
         <td><span class="badge ${badge[d.status]||'badge-pending'}">${labels[d.status]||d.status}</span></td>
         <td style="white-space:nowrap">
           ${d.status!=='pago'?`<button class="btn-success" onclick="marcarPago(${d.id})" title="Marcar como pago"><i class="ti ti-check"></i></button> `:''}
+          <button class="btn-edit" onclick="abrirEdicao(${d.id})" title="Editar"><i class="ti ti-pencil"></i></button>
           <button class="btn-danger" onclick="excluir(${d.id})" title="Excluir"><i class="ti ti-trash"></i></button>
         </td></tr>`
     }).join('')}</tbody></table></div>`;
@@ -393,6 +437,48 @@ function gerarRelatorio(){
 
 document.getElementById('f-emissao').value=new Date().toISOString().split('T')[0];
 renderMetrics();
+
+let editandoId=null;
+
+function abrirEdicao(id){
+  const d=dados.find(x=>x.id===id);if(!d)return;
+  editandoId=id;
+  document.getElementById('e-fornecedor').value=d.fornecedor||'';
+  document.getElementById('e-servico').value=d.servico||'';
+  document.getElementById('e-valor').value=d.valor||'';
+  document.getElementById('e-emissao').value=d.emissao||'';
+  document.getElementById('e-vencimento').value=d.vencimento||'';
+  document.getElementById('e-periodo').value=d.periodo||'';
+  document.getElementById('e-status').value=d.status||'pendente';
+  document.getElementById('e-valorpago').value=d.valorPago||'';
+  document.getElementById('e-obs').value=d.obs||'';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function fecharModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  editandoId=null;
+}
+
+function salvarEdicao(){
+  const forn=document.getElementById('e-fornecedor').value.trim();
+  const serv=document.getElementById('e-servico').value.trim();
+  const val=parseFloat(document.getElementById('e-valor').value);
+  const emis=document.getElementById('e-emissao').value;
+  const venc=document.getElementById('e-vencimento').value;
+  if(!forn||!serv||!val||!emis||!venc){toast('Preencha os campos obrigatorios');return}
+  const idx=dados.findIndex(x=>x.id===editandoId);if(idx===-1)return;
+  dados[idx]={...dados[idx],fornecedor:forn,servico:serv,valor:val,emissao:emis,vencimento:venc,
+    periodo:document.getElementById('e-periodo').value,
+    status:document.getElementById('e-status').value,
+    valorPago:parseFloat(document.getElementById('e-valorpago').value)||0,
+    obs:document.getElementById('e-obs').value.trim()};
+  salvar();fecharModal();renderTabela();renderMetrics();toast('Registro atualizado!');
+}
+
+document.getElementById('modal-overlay').addEventListener('click',function(e){
+  if(e.target===this)fecharModal();
+});
 </script>
 </body>
 </html>
